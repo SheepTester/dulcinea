@@ -12,7 +12,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&family=Poppins:ital@0;1&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="./css/main.css">
-    <script src="./js/discord.master.min.js" charset="utf-8"></script>
+
+    <script src="./js/lib/discord.master.min.js" charset="utf-8"></script>
+    <script src="./js/lib/react.development.js" charset="utf-8"></script>
+    <script src="./js/lib/react-dom.development.js" charset="utf-8"></script>
   </head>
   <body class="screen-loading">
     <span class="loading">Loading...</span>
@@ -25,6 +28,7 @@
     <div id="vc-list" class="vc-list-wrapper">
       <h1 class="vc-list-heading">Select a voice channel.</h1>
     </div>
+    <div id="member-list-root"></div>
     <script src="./js/main.js" charset="utf-8" type="module"></script>
   </body>
 </html>

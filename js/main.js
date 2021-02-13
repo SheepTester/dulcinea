@@ -1,5 +1,6 @@
 import { getToken } from './token.js'
 import { renderVoiceChannelList } from './voice-list.js'
+import { members } from './member-list.js'
 
 const client = new Discord.Client()
 window.client = client
@@ -31,9 +32,10 @@ async function main () {
   const channel = await vcSelect
   vcListWrapper.remove()
   document.body.classList.remove('screen-vc')
-  document.body.classList.add('screen-loading')
 
-  console.log(channel)
+  document.body.classList.add('screen-members')
+  await members(channel)
+  document.body.classList.remove('screen-members')
 }
 
 main()
