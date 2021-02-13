@@ -1,6 +1,7 @@
 .token-form {
   display: none;
   text-align: center;
+  background-color: rgba(224, 78, 101, 0.8);
 }
 .screen-token {
   justify-content: center;
@@ -21,8 +22,11 @@
   font-weight: 900;
   font-size: 100px;
   margin: 0;
-  margin-bottom: -25px;
+  margin-bottom: -9px;
+  width: 100%;
   max-width: 800px;
+  line-height: 0.9;
+  z-index: -1;
 }
 .token-input {
   padding: 5px 10px;
