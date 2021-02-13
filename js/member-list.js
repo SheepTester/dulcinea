@@ -16,16 +16,18 @@ function MemberList ({ channel, onStart }) {
     }
   }, [channel])
 
-  const users = members.filter(member => !member.user.bot)
   return e(
     'div',
     { className: 'member-list-wrapper' },
     e(
       'ul',
       { className: 'member-list' },
-      users.map(member => e(
+      members.map(member => e(
         'li',
-        { className: 'member-item', key: member.id },
+        {
+          className: `member-item ${member.user.bot ? 'member-bot' : ''}`,
+          key: member.id
+        },
         e('img', {
           src: member.user.displayAvatarURL({
             format: 'png',
@@ -42,15 +44,13 @@ function MemberList ({ channel, onStart }) {
     ),
     e(
       'button',
-      { onClick: onStart, disabled: users.length === 0 },
+      { onClick: onStart, disabled: !members.find(member => !member.user.bot) },
       'Start'
     )
   )
 }
 
-export function members (channel) {
-  const root = document.getElementById('member-list-root')
-
+export function members (channel, root) {
   return new Promise(resolve => {
     ReactDOM.render(
       e(
