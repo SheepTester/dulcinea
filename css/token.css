@@ -1,0 +1,44 @@
+.token-form {
+  display: none;
+  text-align: center;
+}
+.screen-token {
+  justify-content: center;
+  align-items: center;
+  background-color: #e04e65;
+  color: white;
+}
+.screen-token .token-form {
+  display: block;
+}
+
+.token-warning {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  text-align: left;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 900;
+  font-size: 100px;
+  margin: 0;
+  margin-bottom: -25px;
+  max-width: 800px;
+}
+.token-input {
+  padding: 5px 10px;
+  border: 1px solid currentColor;
+  border-radius: 5px;
+  margin: 0 10px;
+}
+.token-submit {
+  padding: 5px 10px;
+  border-radius: 5px;
+  background-color: black;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+  transition: color .2s, background-color .2s, box-shadow .2s;
+}
+.token-submit:hover {
+  color: black;
+  background-color: white;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}

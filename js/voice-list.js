@@ -3,7 +3,9 @@ export function renderVoiceChannelList (client) {
     className: 'vc-list'
   })
 
-  for (const guild of client.guilds.cache.values()) {
+  const guilds = Array.from(client.guilds.cache.values())
+    .sort((a, b) => a.name.localeCompare(b.name))
+  for (const guild of guilds) {
     const guildWrapper = Object.assign(document.createElement('div'), {
       className: 'vc-guild-wrapper'
     })
@@ -13,8 +15,16 @@ export function renderVoiceChannelList (client) {
       textContent: guild.name
     }))
 
-    for (const channel of guild.channels.cache.values()) {
+    const channels = Array.from(guild.channels.cache.values())
+      .sort((a, b) => (
+        a.parent === b.parent
+          ? a.rawPosition - b.rawPosition
+          : (a.parent ? a.parent.rawPosition : 0) -
+            (b.parent ? b.parent.rawPosition : 0)
+      ))
+    for (const channel of channels) {
       if (channel.type !== 'voice') continue
+
       const channelBtn = Object.assign(document.createElement('button'), {
         className: 'vc-voice-channel',
         textContent: channel.name
