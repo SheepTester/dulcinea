@@ -1,28 +1,15 @@
-const answeredUsers = []
-
-function answerKey(userID) {
-    return `[discordjackbox] answer: ${userID}`
-}
+const answers = new Map()
 
 export function collectAnswer(message, voiceChannel) {
-    if (!voiceChannel.members.has(message.author.id)) return
-
-    answeredUsers.push(message.author.id)
-    const key = answerKey(message.author.id)
-
-    if (!localStorage.getItem(key)) {
-        localStorage.setItem(key, message.content)
-        return true
+    if (message.guild || message.author.bot || !voiceChannel.members.has(message.author.id)) return
+    if (answers.has(message.author.id)) {
+        message.channel.send('You have already sent an answer for this round')
     } else {
-        return false
+        answers.set(message.author.id, message.content)
+        message.channel.send('✅ Answer submitted')
     }
 }
 
-export function getAnswers() {
-    return new Map(answeredUsers.map(userID => [userID, localStorage.getItem(answerKey(userID))]))
-}
+export function getAnswers() { return answers }
 
-export function clearAnswers() {
-    answeredUsers.forEach(userID => localStorage.removeItem(answerKey(userID)))
-    answeredUsers = []
-}
+export function clearAnswers() { answers.clear() }
