@@ -73,9 +73,33 @@
   background-color: #7289DA;
   padding: 0 9px;
   border-radius: 50px;
+  font-weight: bold;
 }
 .vc-no-vc {
   font-style: italic;
   margin: 0;
   color: rgba(255, 255, 255, 0.3);
+}
+
+.member-list-channel-name {
+  color: white;
+}
+.member-list-back-btn {
+  margin-right: 10px;
+}
+.member-list {
+  display: grid;
+}
+.start-btn {
+  padding: 5px 10px;
+  border-radius: 5px;
+  color: white;
+  background-color: #7289DA;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+  transition: color .2s, background-color .2s, box-shadow .2s;
+}
+.start-btn:hover {
+  color: #7289DA;
+  background-color: white;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 }

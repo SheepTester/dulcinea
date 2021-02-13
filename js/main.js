@@ -1,6 +1,8 @@
 import { getToken } from './token.js'
 import { selectVoiceChannel } from './voice-list.js'
 
+import { game } from './games/test.js'
+
 const client = new Discord.Client()
 window.client = client
 
@@ -27,6 +29,8 @@ async function main () {
   document.body.classList.add('screen-vc')
   const channel = await selectVoiceChannel(client, document.getElementById('vc-list'))
   document.body.classList.remove('screen-vc')
+
+  game(channel)
 }
 
 main()

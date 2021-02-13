@@ -19,10 +19,15 @@ export function MemberList ({ channel, onStart, onBack }) {
   return e(
     'div',
     { className: 'member-list-wrapper' },
-    onBack && e(
-      'button',
-      { className: 'member-list-back-btn', onClick: onBack },
-      '◀'
+    e(
+      'h1',
+      { className: 'member-list-channel-name big-bold' },
+      onBack && e(
+        'button',
+        { className: 'member-list-back-btn', onClick: onBack },
+        e('span', { className: 'material-icons' }, 'arrow_back')
+      ),
+      channel.name
     ),
     e(
       'ul',
@@ -49,7 +54,11 @@ export function MemberList ({ channel, onStart, onBack }) {
     ),
     e(
       'button',
-      { onClick: onStart, disabled: !members.find(member => !member.user.bot) },
+      {
+        onClick: onStart,
+        className: 'start-btn',
+        disabled: !members.find(member => !member.user.bot)
+      },
       'Start'
     )
   )
