@@ -10,12 +10,32 @@ export function renderVoiceChannelList (client) {
       className: 'vc-guild-wrapper'
     })
     wrapper.append(guildWrapper)
-    guildWrapper.append(Object.assign(document.createElement('h2'), {
-      className: 'vc-guild-name',
+    const guildName = Object.assign(document.createElement('h2'), {
+      className: 'vc-guild-name'
+    })
+    const guildIcon = guild.iconURL({
+      format: 'png',
+      dynamic: true,
+      size: 32
+    })
+    if (guildIcon) {
+      guildName.append(Object.assign(document.createElement('img'), {
+        src: guildIcon,
+        className: 'vc-guild-icon'
+      }))
+    } else {
+      guildName.append(Object.assign(document.createElement('div'), {
+        className: 'vc-guild-icon vc-guild-no-icon'
+      }))
+    }
+    guildName.append(Object.assign(document.createElement('span'), {
+      className: 'vc-guild-name-span',
       textContent: guild.name
     }))
+    guildWrapper.append(guildName)
 
     const channels = Array.from(guild.channels.cache.values())
+      .filter(channel => channel.type === 'voice')
       .sort((a, b) => (
         a.parent === b.parent
           ? a.rawPosition - b.rawPosition
@@ -23,14 +43,19 @@ export function renderVoiceChannelList (client) {
             (b.parent ? b.parent.rawPosition : 0)
       ))
     for (const channel of channels) {
-      if (channel.type !== 'voice') continue
-
       const channelBtn = Object.assign(document.createElement('button'), {
         className: 'vc-voice-channel',
         textContent: channel.name
       })
       channelBtn.dataset.channelId = channel.id
       guildWrapper.append(channelBtn)
+    }
+    if (channels.length === 0) {
+      const noVcText = Object.assign(document.createElement('p'), {
+        className: 'vc-no-vc',
+        textContent: 'No voice channels'
+      })
+      guildWrapper.append(noVcText)
     }
   }
 

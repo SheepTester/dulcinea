@@ -1,8 +1,9 @@
 .vc-list-wrapper {
   display: none;
-  margin: 50px;
+  padding: 50px;
 }
 .screen-vc {
+  display: block;
   background-color: #2C2F33;
   color: #99AAB5;
 }
@@ -19,10 +20,53 @@
 }
 .vc-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+}
+.vc-guild-wrapper {
+  display: flex;
+  flex-direction: column;
+  margin: 10px;
+}
+.vc-guild-name {
+  display: flex;
+  align-items: center;
+  color: white;
+  font-weight: normal;
+  margin-bottom: 10px;
+}
+.vc-guild-name-span {
+  width: 0;
+  flex: auto;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: pre;
+}
+.vc-guild-icon {
+  border-radius: 50%;
+  flex: none;
+  width: 32px;
+  height: 32px;
+  margin-right: 10px;
+}
+.vc-guild-no-icon {
+  background-color: rgba(0, 0, 0, 0.5);
 }
 .vc-voice-channel {
   display: block;
-  width: 100%;
   text-align: left;
+  color: rgba(255, 255, 255, 0.8);
+  padding: 5px 15px;
+  margin: 0 -15px;
+  border-radius: 5px;
+  white-space: pre;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+.vc-voice-channel:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+.vc-no-vc {
+  font-style: italic;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.3);
 }
