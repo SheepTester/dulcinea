@@ -1,12 +1,10 @@
 import { getToken } from './token.js'
+import { renderVoiceChannelList } from './voice-list.js'
 
 const client = new Discord.Client()
+window.client = client
 
 async function main () {
-  client.on('ready', () => {
-    console.log(client)
-  })
-
   const tokenForm = document.getElementById('token-form')
   const token = await getToken({
     storageKey: '[discordjackbox] bot token',
@@ -15,7 +13,18 @@ async function main () {
     saveCheckbox: document.getElementById('token-save')
   })
   tokenForm.remove()
-  await client.login(token)
+  client.login(token)
+  // Await the ready event
+  await new Promise(resolve => {
+    client.once('ready', resolve)
+  })
+
+  const vcListWrapper = document.getElementById('vc-list')
+  const { wrapper: vcList, select: vcSelect } = renderVoiceChannelList(client)
+  vcListWrapper.append(vcList)
+  const channel = await vcSelect
+  vcListWrapper.remove()
+  console.log(channel)
 }
 
 main()

@@ -18,6 +18,6 @@ export function getToken ({ storageKey, form, input, saveCheckbox }) {
       }
       resolve(input.value)
       e.preventDefault()
-    })
+    }, { once: true })
   })
 }
