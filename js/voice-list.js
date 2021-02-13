@@ -1,3 +1,5 @@
+import { MemberList } from './member-list.js'
+
 const { createElement: e, useEffect, useState } = React
 
 function getGuilds (client) {
@@ -48,7 +50,7 @@ function VoiceChannelList ({ client, onChannel }) {
   return e(
     'div',
     { className: 'vc-list-wrapper' },
-    e('h1', { className: 'vc-list-heading' }, 'Select a voice channel.'),
+    e('h1', { className: 'vc-list-heading big-bold' }, 'Select a voice channel.'),
     e(
       'div',
       { className: 'vc-list' },
@@ -95,6 +97,34 @@ function VoiceChannelList ({ client, onChannel }) {
   )
 }
 
+function VcOrMemberList ({ client, onStart }) {
+  const [channel, setChannel] = useState(null)
+
+  if (channel) {
+    return e(
+      MemberList,
+      {
+        channel,
+        onStart: () => onStart(channel),
+        onBack: () => setChannel(null)
+      }
+    )
+  } else {
+    return e(
+      VoiceChannelList,
+      {
+        client,
+        onChannel: channelId => {
+          const channel = client.channels.cache.get(channelId)
+          if (channel && channel.type === 'voice') {
+            setChannel(channel)
+          }
+        }
+      }
+    )
+  }
+}
+
 export function selectVoiceChannel (client, root) {
   return new Promise(resolve => {
     ReactDOM.render(
@@ -102,15 +132,10 @@ export function selectVoiceChannel (client, root) {
         React.StrictMode,
         null,
         e(
-          VoiceChannelList,
+          VcOrMemberList,
           {
             client,
-            onChannel: channelId => {
-              const channel = client.channels.cache.get(channelId)
-              if (channel && channel.type === 'voice') {
-                resolve(channel)
-              }
-            }
+            onStart: resolve
           }
         )
       ),

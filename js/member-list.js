@@ -1,6 +1,6 @@
 const { createElement: e, useEffect, useState } = React
 
-function MemberList ({ channel, onStart }) {
+export function MemberList ({ channel, onStart, onBack }) {
   const [members, setMembers] = useState(() => Array.from(channel.members.values()))
 
   useEffect(() => {
@@ -19,6 +19,11 @@ function MemberList ({ channel, onStart }) {
   return e(
     'div',
     { className: 'member-list-wrapper' },
+    onBack && e(
+      'button',
+      { className: 'member-list-back-btn', onClick: onBack },
+      '◀'
+    ),
     e(
       'ul',
       { className: 'member-list' },
@@ -48,22 +53,4 @@ function MemberList ({ channel, onStart }) {
       'Start'
     )
   )
-}
-
-export function members (channel, root) {
-  return new Promise(resolve => {
-    ReactDOM.render(
-      e(
-        React.StrictMode,
-        null,
-        e(
-          MemberList,
-          { channel, onStart: resolve }
-        )
-      ),
-      root
-    )
-  }).then(() => {
-    ReactDOM.unmountComponentAtNode(root)
-  })
 }
