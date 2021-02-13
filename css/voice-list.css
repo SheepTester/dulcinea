@@ -1,0 +1,20 @@
+.vc-list-wrapper {
+  display: none;
+}
+.screen-vc .vc-list-wrapper {
+  display: block;
+}
+
+.vc-list-heading {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 900;
+}
+.vc-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+}
+.vc-voice-channel {
+  display: block;
+  width: 100%;
+  text-align: left;
+}
