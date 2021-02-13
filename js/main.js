@@ -1,5 +1,7 @@
 import { getToken } from './token.js'
-import { renderVoiceChannelList } from './voice-list.js'
+import { selectVoiceChannel } from './voice-list.js'
+
+import { game } from './games/test.js'
 
 const client = new Discord.Client()
 window.client = client
@@ -25,15 +27,10 @@ async function main () {
 
   document.body.classList.remove('screen-loading')
   document.body.classList.add('screen-vc')
-  const vcListWrapper = document.getElementById('vc-list')
-  const { wrapper: vcList, select: vcSelect } = renderVoiceChannelList(client)
-  vcListWrapper.append(vcList)
-  const channel = await vcSelect
-  vcListWrapper.remove()
+  const channel = await selectVoiceChannel(client, document.getElementById('vc-list'))
   document.body.classList.remove('screen-vc')
-  document.body.classList.add('screen-loading')
 
-  console.log(channel)
+  game(channel)
 }
 
 main()

@@ -7,24 +7,26 @@
     <title>If you see this, I haven't bothered setting a website title.</title>
     <meta name="description" content="If you see this, I haven't bothered writing a description." />
 
-    <!-- https://fonts.google.com/specimen/Poppins?preview.text_type=custom&sidebar.open=true&selection.family=Montserrat:wght@900|Poppins:ital@0;1 -->
+    <!-- https://fonts.google.com/specimen/Poppins?preview.text_type=custom&sidebar.open=true&selection.family=Montserrat:wght@900|Poppins:ital,wght@0,400;0,700;1,400 -->
     <link rel="preconnect" href="https://fonts.gstatic.com">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&family=Poppins:ital@0;1&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&family=Poppins:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
     <link rel="stylesheet" href="./css/main.css">
-    <script src="./js/discord.master.min.js" charset="utf-8"></script>
+
+    <script src="./js/lib/discord.master.min.js" charset="utf-8"></script>
+    <script src="./js/lib/react.development.js" charset="utf-8"></script>
+    <script src="./js/lib/react-dom.development.js" charset="utf-8"></script>
   </head>
   <body class="screen-loading">
     <span class="loading">Loading...</span>
     <form id="token-form" class="token-form">
-      <p class="token-warning">Do not share this screen.</p>
+      <p class="token-warning big-bold">Do not share this screen.</p>
       <p><label>Discord bot token: <input type="password" id="token-input" class="token-input" required autofocus></label></p>
       <p><label class="hoverable"><input type="checkbox" id="token-save"> Save in localStorage?</label></p>
       <p><input type="submit" value="Start bot" class="token-submit"></p>
     </form>
-    <div id="vc-list" class="vc-list-wrapper">
-      <h1 class="vc-list-heading">Select a voice channel.</h1>
-    </div>
+    <div id="vc-list" class="vc-list-root"></div>
     <script src="./js/main.js" charset="utf-8" type="module"></script>
   </body>
 </html>
