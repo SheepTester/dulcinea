@@ -7,20 +7,25 @@ export class Answers {
         return this.channel.members.filter(m => !m.user.bot);
     }
 
-    async expectAnswers(time) {
-        const messages = await Promise.allSettled(this.members.filter.map(async member => {
-            const dmChannel = await member.createDM()
-            //await dmChannel.send('')
-            return dmChannel.awaitMessages(() => true, { max: 1, time, errors: ['time'] }).then(messages => messages.first())
-        })).then(results => results.filter(res => res.status === 'fulfilled').map(res => res.value))
-        return new Map(this.members.map(m => [m.id, messages.find(mess => mess.author.id === m.id)]))
-        // only returns answers for members still in vc
+    async expectAnswers(time, memberQuestions) {
+        const results = new Map()
+        await Promise.allSettled(this.members.map(async member => {
+            const answers = [];
+            const start = Date.now()
+            setTimeout(() => { results.set(member.id, answers); resolve() }, time)
+            for(const question of memberQuestions.get(member.id)) {
+                const message = await member.send(question)
+                const answer = await message.channel.awaitMessages(() => true, { max: 1, time: time + start - Date.now(), errors: ['time'] })
+                answers.push(answer.first().content)
+            }
+        }))
+        return results
     }
 
     async expectVotes(time, reactions) { // reactions is a list of string default emojis
         const results = await Promise.allSettled(this.members.map(async member => {
             const message = await member.send(`Time to vote! React to one of the reactions below:`)
-            await Promise.all(reactions.map(message.react))
+            await Promise.all(reactions.map(e => message.react(e)))
             return message.awaitReactions(reaction => reactions.includes(reaction.emoji.name), { max: 1, time, errors: ['time'] })
                 .then(reacts => [member.id, reacts.first().emoji.name])
                 .catch(() => null)
