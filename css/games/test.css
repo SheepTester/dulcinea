@@ -1,5 +1,6 @@
 .screen-game {
   background-image: radial-gradient(circle at 50% 50%, #ba1bca, #231533);
+  overflow: hidden;
 }
 
 .game-card {
