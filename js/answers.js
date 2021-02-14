@@ -37,7 +37,12 @@ export class Answers {
         await Promise.allSettled(this.members.map(async member => {
             return new Promise(async resolve => {
                 let answer
-                const message = await member.send(questions.get(member.id))
+                const question = questions.get(member.id)
+                if (!question) {
+                  resolve()
+                  return
+                }
+                const message = await member.send(question)
                 const start = Date.now()
                 setTimeout(() => { results.set(member.id, answer); resolve() }, time)
                 for(;;) {
