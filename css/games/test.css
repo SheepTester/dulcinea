@@ -250,3 +250,41 @@
     transform: translate(-50%, -50%) rotate(5deg) scale(0.8);
   }
 }
+
+.game-score {
+  display: flex;
+  align-items: center;
+  margin: 20px 0;
+}
+.game-score-number {
+  color: white;
+  font-size: 48px;
+  margin-left: 20px;
+}
+.game-score-rank-0 .game-score-number {
+  font-size: 80px;
+}
+.game-score-rank-1 .game-score-number {
+  font-size: 60px;
+}
+.game-over {
+  font-size: 64px;
+  margin: 0;
+  color: white;
+  text-align: center;
+}
+.game-scoreboard-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.game-scoreboard-losers {
+  display: flex;
+  flex-wrap: wrap;
+  max-width: 50vw;
+  justify-content: center;
+}
+.game-score-insignificant .game-avatar {
+  width: 48px;
+  height: 48px;
+}

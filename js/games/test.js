@@ -21,10 +21,13 @@ const defaultResponses = [
   'I don\'t know.',
   'This is too big brain for me.',
   'lol',
-  'I disagree.'
+  'I disagree.',
+  'I love you!',
+  'ok',
+  ':lemonthink:'
 ]
 function autoResponse () {
-  return defaultResponses[Math.random() * defaultResponses | 0]
+  return defaultResponses[Math.floor(Math.random() * defaultResponses.length)]
 }
 
 const questionsPromise = fetch(new URL('../questions.json', import.meta.url))
@@ -108,15 +111,19 @@ function Game ({ channel, onEnd, questions }) {
 
     const answerExpecter = new Answers(channel)
 
-    setEndTime(Date.now() + 10000)
+    setEndTime(Date.now() + 2000)
     const done = new Set()
     setGameState({ type: 'answering', done: [] })
     const answers = await answerExpecter.expectAnswers(
-      10000,
+      2000,
       prompts,
       userId => {
         done.add(userId)
-        setGameState({ type: 'answering', done: [...done] })
+        setGameState(gameState => (
+          gameState.type === 'answering'
+            ? { type: 'answering', done: [...done] }
+            : gameState
+        ))
       }
     )
 
@@ -140,10 +147,11 @@ function Game ({ channel, onEnd, questions }) {
       [[userA, answerA = autoResponse()], [userB, answerB = autoResponse()]]
     ] of responses) {
       setGameState({ type: 'voting', prompt, answerA, answerB, results: false })
-      setEndTime(Date.now() + 10000)
+      updateScore()
+      setEndTime(Date.now() + 2000)
       const votes = await answerExpecter.expectAnswers(
-        10000,
-        new Map(memberIds.map(userId => [userId, [voteMessages[Math.random() * voteMessages.length | 0]]]))
+        2000,
+        new Map(memberIds.map(userId => [userId, [voteMessages[Math.floor(Math.random() * voteMessages.length)]]]))
       )
       setEndTime(null)
       const oldScores = new Map(scores)
@@ -170,11 +178,12 @@ function Game ({ channel, onEnd, questions }) {
         bVotes: bVotes.map(getUser),
         results: true
       })
-      await wait(10000000)
+      await wait(2000)
     }
-    // onEnd()
+    setGameState({ type: 'scoreboard' })
   }, [onEnd])
 
+  const sortedScores = [...scores].sort((a, b) => b[1] - a[1])
   return e(
     'div',
     {
@@ -192,6 +201,7 @@ function Game ({ channel, onEnd, questions }) {
       's left.'
     ),
     gameState.type === 'answering' ? e(
+      // ANSWERING INSTRUCTIONS
       'div',
       { className: 'game-card game-answering-instruct' },
       e(
@@ -201,7 +211,8 @@ function Game ({ channel, onEnd, questions }) {
         e('strong', null, channel.client.user.tag),
         ' your answers!'
       )
-    ) : e(
+    ) : gameState.type === 'voting' ? e(
+      // VOTING CARD COMPARISON
       React.Fragment,
       null,
       e(
@@ -254,8 +265,37 @@ function Game ({ channel, onEnd, questions }) {
         { className: 'game-tie big-bold' },
         'Tie!'
       )
+    ) : e(
+      // END SCOREBOARD
+      'div',
+      { className: 'game-scoreboard' },
+      e('h1', { className: 'game-over' }, 'Results'),
+      e(
+        'div',
+        { className: 'game-scoreboard-wrapper' },
+        e(
+          'div',
+          { className: 'game-scoreboard-winners' },
+          sortedScores.slice(0, 3).map(([user, score], i) => e(
+            'div',
+            { className: `game-score game-score-rank-${i}`, key: user.id },
+            e(User, { user }),
+            e('span', { className: `game-score-number big-bold` }, score)
+          ))
+        ),
+        e(
+          'div',
+          { className: 'game-scoreboard-losers' },
+          sortedScores.slice(3).map(([user, score]) => e(
+            'div',
+            { className: 'game-score-insignificant', key: user.id },
+            e(User, { user, score })
+          ))
+        )
+      )
     ),
-    e(
+    // BOTTOM SCOREBOARD
+    gameState.type !== 'scoreboard' && e(
       'div',
       { className: 'game-players' },
       scores.map(([user, score]) => e(
