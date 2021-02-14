@@ -31,11 +31,10 @@ async function main () {
   document.body.classList.remove('screen-vc')
 
   // Keep playing the game
-  while (true) {
-    document.body.classList.add('screen-game')
-    await game(channel, document.getElementById('game-root'))
-    document.body.classList.remove('screen-game')
-  }
+  document.body.classList.add('screen-game')
+  await game(channel, document.getElementById('game-root'))
+  document.body.classList.remove('screen-game')
+  document.body.classList.add('screen-loading')
 }
 
 main()

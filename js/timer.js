@@ -1,3 +1,5 @@
+const { createElement: e, useEffect, useState } = React
+
 export function Timer ({ endTime }) {
   const [seconds, setSeconds] = useState(0)
 
