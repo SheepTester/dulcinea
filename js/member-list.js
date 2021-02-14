@@ -1,12 +1,20 @@
 const { createElement: e, useEffect, useState } = React
 
+function getName (member) {
+  return member.nickname || member.user.username
+}
+function getMembers (channel) {
+  return Array.from(channel.members.values())
+    .sort((a, b) => getName(a).localeCompare(getName(b)))
+}
+
 export function MemberList ({ channel, onStart, onBack }) {
-  const [members, setMembers] = useState(() => Array.from(channel.members.values()))
+  const [members, setMembers] = useState(() => getMembers(channel))
 
   useEffect(() => {
     const handleVoiceStateUpdate = (oldState, newState) => {
       if (oldState.channelID === channel.id || newState.channelID === channel.id) {
-        setMembers(Array.from(channel.members.values()))
+        setMembers(getMembers(channel))
       }
     }
     channel.client.on('voiceStateUpdate', handleVoiceStateUpdate)
@@ -38,16 +46,22 @@ export function MemberList ({ channel, onStart, onBack }) {
           key: member.id
         },
         e('img', {
+          className: 'member-avatar',
           src: member.user.displayAvatarURL({
             format: 'png',
             dynamic: true,
-            size: 32
+            size: 64
           })
         }),
         e(
           'span',
           { className: 'member-name' },
-          member.nickname || member.user.username
+          getName(member)
+        ),
+        member.user.bot && e(
+          'span',
+          { className: 'member-bot-badge' },
+          'BOT'
         )
       ))
     ),

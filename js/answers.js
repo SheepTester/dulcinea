@@ -7,14 +7,14 @@ export class Answers {
         return this.channel.members.filter(m => !m.user.bot);
     }
 
-    async expectAnswers(time, memberQuestions) {
+    async expectAnswers(time, memberQuestions, userDone) {
         const results = new Map()
         await Promise.allSettled(this.members.map(async member => {
             return new Promise(async resolve => {
                 const answers = []
                 const start = Date.now()
                 setTimeout(() => { results.set(member.id, answers); resolve() }, time)
-                for(const question of memberQuestions.get(member.id)) {
+                for(const question of memberQuestions.get(member.id) || []) {
                     const message = await member.send(question.replace(/_/g, '\\_'))
                     const answer = await message.channel.awaitMessages(() => true, { max: 1, time: time + start - Date.now(), errors: ['time'] }).catch(() => null)
                     if (answer) {
@@ -24,8 +24,9 @@ export class Answers {
                         resolve()
                     }
                 }
-                results.set(member.id, answers);
+                results.set(member.id, answers)
                 resolve()
+                if (userDone) userDone(member.id)
             })
         }))
         return results

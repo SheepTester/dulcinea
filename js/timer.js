@@ -1,6 +1,6 @@
 const { createElement: e, useEffect, useState } = React
 
-export function Timer ({ endTime }) {
+export function Timer ({ endTime, ...props }) {
   const [seconds, setSeconds] = useState(0)
 
   useEffect(() => {
@@ -21,5 +21,5 @@ export function Timer ({ endTime }) {
     }
   }, [endTime])
 
-  return e('span', { className: 'timer' }, seconds)
+  return e('span', { className: 'timer', ...props }, seconds)
 }
