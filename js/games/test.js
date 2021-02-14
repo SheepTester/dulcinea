@@ -149,9 +149,10 @@ function Game ({ channel, onEnd, questions }) {
       setGameState({ type: 'voting', prompt, answerA, answerB, results: false })
       updateScore()
       setEndTime(Date.now() + 2000)
-      const votes = await answerExpecter.expectAnswers(
+      const votes = await answerExpecter.expectVotes(
         2000,
-        new Map(memberIds.map(userId => [userId, [voteMessages[Math.floor(Math.random() * voteMessages.length)]]]))
+        new Map(memberIds.map(userId => [userId, [voteMessages[Math.floor(Math.random() * voteMessages.length)]]])),
+        ['a', 'b']
       )
       setEndTime(null)
       const oldScores = new Map(scores)
