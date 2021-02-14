@@ -11,9 +11,9 @@ for (let i = 0x1f1e6; i <= 0x1f1ff; i++) {
 }
 
 const voteMessages = [
-  'Voting time! Reply with either `A` or `B`.',
-  'Reply with either `A` or `B` to vote.',
-  'It\'s time to vote! Reply with either `A` or `B`.'
+  'Voting time! Reply with either `A` (left) or `B` (right).',
+  'Reply with either `A` (left) or `B` (right) to vote.',
+  'It\'s time to vote! Reply with either `A` (left) or `B` (right).'
 ]
 
 const defaultResponses = [
@@ -111,21 +111,20 @@ function Game ({ channel, onEnd, questions }) {
 
     const answerExpecter = new Answers(channel)
 
-    setEndTime(Date.now() + 2000)
+    setEndTime(Date.now() + 90000)
     const done = new Set()
     setGameState({ type: 'answering', done: [] })
-    const answers = await answerExpecter.expectAnswers(
-      2000,
-      prompts,
-      userId => {
+    const answers = await answerExpecter.expectAnswers(90000, prompts, {
+      onUserDone: userId => {
         done.add(userId)
         setGameState(gameState => (
           gameState.type === 'answering'
             ? { type: 'answering', done: [...done] }
             : gameState
         ))
-      }
-    )
+      },
+      prefix: 'Prompt: '
+    })
 
     const responses = new Map() // Question => [UserId, string][]
     for (const [userId, userPrompts] of prompts) {
@@ -148,9 +147,9 @@ function Game ({ channel, onEnd, questions }) {
     ] of responses) {
       setGameState({ type: 'voting', prompt, answerA, answerB, results: false })
       updateScore()
-      setEndTime(Date.now() + 2000)
+      setEndTime(Date.now() + 15000)
       const votes = await answerExpecter.expectAnswers(
-        2000,
+        15000,
         new Map(memberIds.map(userId => [userId, [voteMessages[Math.floor(Math.random() * voteMessages.length)]]]))
       )
       setEndTime(null)
@@ -178,7 +177,7 @@ function Game ({ channel, onEnd, questions }) {
         bVotes: bVotes.map(getUser),
         results: true
       })
-      await wait(2000)
+      await wait(5000)
     }
     setGameState({ type: 'scoreboard' })
   }, [onEnd])
