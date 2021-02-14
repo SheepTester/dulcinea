@@ -6,7 +6,6 @@ export function MemberList ({ channel, onStart, onBack }) {
   useEffect(() => {
     const handleVoiceStateUpdate = (oldState, newState) => {
       if (oldState.channelID === channel.id || newState.channelID === channel.id) {
-        console.log(Array.from(channel.members.values()))
         setMembers(Array.from(channel.members.values()))
       }
     }

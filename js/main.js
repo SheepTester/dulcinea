@@ -30,7 +30,12 @@ async function main () {
   const channel = await selectVoiceChannel(client, document.getElementById('vc-list'))
   document.body.classList.remove('screen-vc')
 
-  game(channel)
+  // Keep playing the game
+  while (true) {
+    document.body.classList.add('screen-game')
+    await game(channel, document.getElementById('game-root'))
+    document.body.classList.remove('screen-game')
+  }
 }
 
 main()
