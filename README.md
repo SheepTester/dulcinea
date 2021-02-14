@@ -41,16 +41,16 @@ prompts.](./docs/answering.png)
 7. After the prompts have been responded to, people can vote for the better
 response.
 
-![w](./docs/vote.png)
+![The voting screen](./docs/vote.png)
 
 8. After 15 seconds of voting, the results will be presented, and points will be
 awarded per vote.
 
-![w](./docs/vote-results.png)
+![Vote results](./docs/vote-results.png)
 
-![w](./docs/tie.png)
+![Tie result](./docs/tie.png)
 
 9. At the end of the game, a scoreboard quantitatively compares the
 participants' scores.
 
-![w](./docs/scoreboard.png)
+![Scoreboard at the end of the game](./docs/scoreboard.png)
