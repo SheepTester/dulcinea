@@ -157,7 +157,7 @@ function Game ({ channel, onEnd, questions }) {
       const oldScores = new Map(scores)
       const aVotes = []
       const bVotes = []
-      for (const [userId, [vote = '']] of votes) {
+      for (const [userId, vote] of votes) {
         if (vote.toLowerCase() === 'a') {
           aVotes.push(userId)
           scores.set(userA, scores.get(userA) + 500)
