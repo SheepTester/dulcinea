@@ -49,7 +49,7 @@ export class Answers {
                     const ans = await message.channel.awaitMessages(mess => reactions.includes(mess.content.toLowerCase()), { max: 1, time: time + start - Date.now(), errors: ['time'] }).catch(() => null)
                     if(ans) {
                         answer = ans.first().content || answer
-                        ans.first().react('✅').catch(() => null)
+                        if (Date.now() < (start + time)) ans.first().react('✅').catch(() => null)
                     }
                     if (Date.now() > (start + time)) resolve()
                 }
