@@ -24,6 +24,8 @@ export class Answers {
                         resolve()
                     }
                 }
+                results.set(member.id, answers);
+                resolve()
             })
         }))
         return results
