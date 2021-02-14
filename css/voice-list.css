@@ -71,9 +71,12 @@
 .vc-voice-channel-members {
   font-size: 12px;
   background-color: #7289DA;
-  padding: 0 9px;
+  padding: 0 6px;
   border-radius: 50px;
   font-weight: bold;
+  flex: none;
+  min-width: 12px;
+  text-align: center;
 }
 .vc-no-vc {
   font-style: italic;

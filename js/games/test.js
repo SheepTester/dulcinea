@@ -30,19 +30,70 @@ function autoResponse () {
 const questionsPromise = fetch(new URL('../questions.json', import.meta.url))
   .then(response => response.json())
 
-function Game ({ channel, onEnd }) {
-  const [answers, setAnswers] = useState(null)
+function User ({ user, score = null, isAnswering = false, isDone = false, className = '' }) {
+  return e(
+    'div',
+    {
+      className: `game-player ${
+        isAnswering
+          ? (isDone ? 'game-done' : 'game-not-done')
+          : ''
+      } ${className}`
+    },
+    e('img', { className: 'game-avatar', src: user.avatar }),
+    e('span', { className: 'game-player-name' }, user.name),
+    score !== null && e(
+      'span',
+      { className: `game-player-score ${user.scoreChange > 0 ? 'game-player-score-changed' : ''}` },
+      score
+    ),
+    user.scoreChange > 0 && e('span', { className: 'game-player-score-change' }, '+' + user.scoreChange)
+  )
+}
+
+function Game ({ channel, onEnd, questions }) {
   const [endTime, setEndTime] = useState(null)
-  const [votes, setVotes] = useState(null)
+  const [scores, setScores] = useState([])
+  const [gameState, setGameState] = useState({ type: 'answering', done: [] })
 
   useEffect(async () => {
-    const questions = [...await questionsPromise]
+    function getUser (userId) {
+      const member = channel.members.get(userId) || channel.guild.members.cache.get(userId)
+      return {
+        id: userId,
+        name: member.nickname || member.user.username,
+        avatar: member.user.displayAvatarURL({
+          format: 'png',
+          dynamic: true,
+          size: 128
+        })
+      }
+    }
+
     const memberIds = shuffleInPlace(Array.from(
       channel.members
         .filter(member => !member.user.bot)
         .keys()
     ))
+
     const scores = new Map(memberIds.map(userId => [userId, 0])) // UserId => number
+    function updateScore (oldScores) {
+      setScores(
+        Array.from(scores)
+          .map(([userId, score]) => {
+            const oldScore = oldScores && oldScores.get(userId)
+            const user = {
+              ...getUser(userId),
+              scoreChange: oldScore !== undefined && score - oldScore
+            }
+            return [user, score]
+          })
+          .sort((a, b) => a[0].name.localeCompare(b[0].name))
+      )
+    }
+    updateScore()
+
+    const availableQuestions = questions
     const prompts = new Map(memberIds.map(userId => [userId, []])) // UserId => Question[]
     for (let i = 0; i < memberIds.length; i++) {
       const [prompt] = questions.splice(Math.floor(Math.random() * questions.length), 1)
@@ -58,8 +109,16 @@ function Game ({ channel, onEnd }) {
     const answerExpecter = new Answers(channel)
 
     setEndTime(Date.now() + 10000)
-    const answers = await answerExpecter.expectAnswers(10000, prompts)
-    setAnswers(Array.from(answers.entries()))
+    const done = new Set()
+    setGameState({ type: 'answering', done: [] })
+    const answers = await answerExpecter.expectAnswers(
+      10000,
+      prompts,
+      userId => {
+        done.add(userId)
+        setGameState({ type: 'answering', done: [...done] })
+      }
+    )
 
     const responses = new Map() // Question => [UserId, string][]
     for (const [userId, userPrompts] of prompts) {
@@ -76,57 +135,149 @@ function Game ({ channel, onEnd }) {
       }
     }
 
-    console.log(responses)
     for (const [
       prompt,
       [[userA, answerA = autoResponse()], [userB, answerB = autoResponse()]]
     ] of responses) {
-      console.log(prompt, userA, answerA, userB, answerB)
+      setGameState({ type: 'voting', prompt, answerA, answerB, results: false })
       setEndTime(Date.now() + 10000)
       const votes = await answerExpecter.expectAnswers(
         10000,
         new Map(memberIds.map(userId => [userId, [voteMessages[Math.random() * voteMessages.length | 0]]]))
       )
       setEndTime(null)
-      for (const [vote = ''] of votes.values()) {
+      const oldScores = new Map(scores)
+      const aVotes = []
+      const bVotes = []
+      for (const [userId, [vote = '']] of votes) {
         if (vote.toLowerCase() === 'a') {
+          aVotes.push(userId)
           scores.set(userA, scores.get(userA) + 500)
         } else if (vote.toLowerCase() === 'b') {
+          bVotes.push(userId)
           scores.set(userB, scores.get(userB) + 500)
         }
       }
-      console.log(scores)
-      await wait(10000)
+      updateScore(oldScores)
+      setGameState({
+        type: 'voting',
+        prompt,
+        userA: getUser(userA),
+        answerA,
+        aVotes: aVotes.map(getUser),
+        userB: getUser(userB),
+        answerB,
+        bVotes: bVotes.map(getUser),
+        results: true
+      })
+      await wait(10000000)
     }
     // onEnd()
   }, [onEnd])
 
   return e(
     'div',
-    null,
-    `DM ${channel.client.user.tag} your answer! `,
+    {
+      className: `game ${
+        gameState.type === 'voting' && gameState.results
+          ? 'game-voting-results'
+          : ''
+      }`
+    },
     endTime && e(
-      React.Fragment,
-      null,
+      'p',
+      { className: 'game-time-left' },
       'You have ',
-      e(Timer, { endTime }),
+      e(Timer, { endTime, className: 'game-timer big-bold' }),
       's left.'
     ),
-    answers && answers.map(([userId, message]) => (
-      message
-        ? e('p', { key: userId }, `${channel.client.users.cache.get(userId).tag} says, "${message.join(', ')}"`)
-        : e('p', { key: userId }, `${channel.client.users.cache.get(userId).tag} didn't say anything.`)
-    )),
-    votes && votes.map(([userId, vote]) => (
-      vote
-        ? e('p', { key: userId }, `${channel.client.users.cache.get(userId).tag} voted for ${vote}`)
-        : e('p', { key: userId }, `${channel.client.users.cache.get(userId).tag} didn't vote for anything.`)
-    ))
+    gameState.type === 'answering' ? e(
+      'div',
+      { className: 'game-card game-answering-instruct' },
+      e(
+        'span',
+        null,
+        'DM ',
+        e('strong', null, channel.client.user.tag),
+        ' your answers!'
+      )
+    ) : e(
+      React.Fragment,
+      null,
+      e(
+        'p',
+        { className: 'game-prompt big-bold' },
+        gameState.prompt
+      ),
+      e(
+        'div',
+        {
+          className: `game-card game-vote-candidate game-left ${
+            gameState.aVotes && gameState.aVotes.length > gameState.bVotes.length ? 'game-winner' : ''
+          } ${
+            gameState.aVotes && gameState.aVotes.length < gameState.bVotes.length ? 'game-loser' : ''
+          }`
+        },
+        gameState.userA && e(
+          User,
+          { className: 'game-answer-author', user: gameState.userA }
+        ),
+        e('span', { className: 'game-answer' }, gameState.answerA),
+        e(
+          'div',
+          { className: 'game-answer-voters' },
+          gameState.aVotes && gameState.aVotes.map(user => e(User, { user, key: user.id }))
+        )
+      ),
+      e(
+        'div',
+        {
+          className: `game-card game-vote-candidate game-right ${
+            gameState.aVotes && gameState.aVotes.length < gameState.bVotes.length ? 'game-winner' : ''
+          } ${
+            gameState.aVotes && gameState.aVotes.length > gameState.bVotes.length ? 'game-loser' : ''
+          }`
+        },
+        gameState.userB && e(
+          User,
+          { className: 'game-answer-author', user: gameState.userB }
+        ),
+        e('span', { className: 'game-answer' }, gameState.answerB),
+        e(
+          'div',
+          { className: 'game-answer-voters' },
+          gameState.bVotes && gameState.bVotes.map(user => e(User, { user, key: user.id }))
+        )
+      ),
+      gameState.aVotes && gameState.aVotes.length === gameState.bVotes.length && e(
+        'p',
+        { className: 'game-tie big-bold' },
+        'Tie!'
+      )
+    ),
+    e(
+      'div',
+      { className: 'game-players' },
+      scores.map(([user, score]) => e(
+        User,
+        {
+          user,
+          score,
+          isAnswering: gameState.type === 'answering',
+          isDone: gameState.type === 'answering' && gameState.done.includes(user.id),
+          key: user.id
+        }
+      ))
+    )
   )
 }
 
-export function game (channel, root) {
-  document.body.classList.add('game-test')
+export async function game (channel, root) {
+  document.body.classList.add('screen-loading')
+  const questions = await questionsPromise
+  document.body.classList.remove('screen-loading')
+
+  document.body.classList.add('screen-game')
   return new Promise(resolve => {
     ReactDOM.render(
       e(
@@ -136,7 +287,8 @@ export function game (channel, root) {
           Game,
           {
             channel,
-            onEnd: resolve
+            onEnd: resolve,
+            questions
           }
         )
       ),
@@ -144,6 +296,6 @@ export function game (channel, root) {
     )
   }).then(() => {
     ReactDOM.unmountComponentAtNode(root)
-    document.body.classList.remove('game-test')
+    document.body.classList.remove('screen-game')
   })
 }
