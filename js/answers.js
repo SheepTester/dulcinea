@@ -25,7 +25,7 @@ export class Answers {
     async expectVotes(time, reactions) { // reactions is a list of string default emojis
         const results = await Promise.allSettled(this.members.map(async member => {
             const message = await member.send(`Time to vote! React to one of the reactions below:`)
-            await Promise.all(reactions.map(e => message.react(e)))
+            await Promise.all(reactions.map(e => message.react(e).catch(() => null)))
             return message.awaitReactions(reaction => reactions.includes(reaction.emoji.name), { max: 1, time, errors: ['time'] })
                 .then(reacts => [member.id, reacts.first().emoji.name])
                 .catch(() => null)
