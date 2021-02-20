@@ -1,6 +1,9 @@
-# gunnhacks-lol
+# Dulcinea
 
-Jackbox for Discord, for GunnHacks 7.0.
+Jackbox for Discord, for GunnHacks 7.0 ([Devpost](https://www.youtube.com/watch?v=3aqB3qu35nk)). Video demonstration:
+
+[![Thumbnail for the YouTube video "GunnHacks 7.0: Dulcinea (aka 'gunnhacks
+lol')"](https://img.youtube.com/vi/3aqB3qu35nk/maxresdefault.jpg)](https://www.youtube.com/watch?v=3aqB3qu35nk)
 
 This works without a backend server (i.e. it can be hosted on GitHub Pages) by
 running a Discord bot in the browser using the old web builds of
