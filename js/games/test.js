@@ -1,14 +1,8 @@
+import { Timer } from '../components/timer.js'
 import { Answers } from '../answers.js'
 import { wait, shuffleInPlace } from '../utils.js'
-import { Timer } from '../timer.js'
 
 const { createElement: e, useEffect, useState } = React
-
-const emoji = []
-// Add regional indicators A-Z
-for (let i = 0x1f1e6; i <= 0x1f1ff; i++) {
-  emoji.push(String.fromCodePoint(i))
-}
 
 const voteMessages = [
   'Voting time! Reply with either `A` (left) or `B` (right).',
@@ -33,6 +27,19 @@ function autoResponse () {
 const questionsPromise = fetch(new URL('../questions.json', import.meta.url))
   .then(response => response.json())
 
+const TIMES = {
+  actual: {
+    answering: 90000,
+    voting: 15000,
+    results: 5000
+  },
+  test: {
+    answering: 2000,
+    voting: 2000,
+    results: 1000
+  }
+}
+
 function User ({ user, score = null, isAnswering = false, isDone = false, className = '' }) {
   return e(
     'div',
@@ -54,7 +61,9 @@ function User ({ user, score = null, isAnswering = false, isDone = false, classN
   )
 }
 
-function Game ({ channel, onEnd, questions }) {
+function Game ({ channel, participants, mode, onEnd, questions }) {
+  const times = TIMES[mode]
+
   const [endTime, setEndTime] = useState(null)
   const [scores, setScores] = useState([])
   const [gameState, setGameState] = useState({ type: 'answering', done: [] })
@@ -73,11 +82,7 @@ function Game ({ channel, onEnd, questions }) {
       }
     }
 
-    const memberIds = shuffleInPlace(Array.from(
-      channel.members
-        .filter(member => !member.user.bot)
-        .keys()
-    ))
+    const memberIds = shuffleInPlace([...participants])
 
     const scores = new Map(memberIds.map(userId => [userId, 0])) // UserId => number
     function updateScore (oldScores) {
@@ -111,7 +116,7 @@ function Game ({ channel, onEnd, questions }) {
 
     const answerExpecter = new Answers(channel)
 
-    setEndTime(Date.now() + 90000)
+    setEndTime(Date.now() + times.answering)
     const done = new Set()
     setGameState({ type: 'answering', done: [] })
     const answers = await answerExpecter.expectAnswers(90000, prompts, {
@@ -144,10 +149,10 @@ function Game ({ channel, onEnd, questions }) {
     for (const [
       prompt,
       [[userA, answerA = autoResponse()], [userB, answerB = autoResponse()]]
-    ] of responses) {
+    ] of shuffleInPlace(Array.from(responses))) {
       setGameState({ type: 'voting', prompt, answerA, answerB, results: false })
       updateScore()
-      setEndTime(Date.now() + 15000)
+      setEndTime(Date.now() + times.voting)
       const votes = await answerExpecter.expectVotes(
         15000,
         new Map(memberIds.map(userId => [userId, [voteMessages[Math.floor(Math.random() * voteMessages.length)]]])),
@@ -178,7 +183,7 @@ function Game ({ channel, onEnd, questions }) {
         bVotes: bVotes.map(getUser),
         results: true
       })
-      await wait(5000)
+      await wait(times.results)
     }
     setGameState({ type: 'scoreboard' })
   }, [onEnd])
@@ -266,7 +271,7 @@ function Game ({ channel, onEnd, questions }) {
         'Tie!'
       )
     ) : e(
-      // END SCOREBOARD
+      // SCOREBOARD AT END OF GAME
       'div',
       { className: 'game-scoreboard' },
       e('h1', { className: 'game-over' }, 'Results'),
@@ -308,11 +313,16 @@ function Game ({ channel, onEnd, questions }) {
           key: user.id
         }
       ))
+    ),
+    gameState.type === 'scoreboard' && e(
+      'button',
+      { className: 'game-back-btn', onClick: onEnd },
+      e('span', { className: 'material-icons' }, 'arrow_back')
     )
   )
 }
 
-export async function game (channel, root) {
+export async function game (channel, participants, root) {
   document.body.classList.add('screen-loading')
   const questions = await questionsPromise
   document.body.classList.remove('screen-loading')
@@ -327,6 +337,8 @@ export async function game (channel, root) {
           Game,
           {
             channel,
+            participants,
+            mode: 'actual',
             onEnd: resolve,
             questions
           }

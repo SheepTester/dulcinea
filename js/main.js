@@ -25,16 +25,18 @@ async function main () {
     client.once('ready', resolve)
   })
 
-  document.body.classList.remove('screen-loading')
-  document.body.classList.add('screen-vc')
-  const channel = await selectVoiceChannel(client, document.getElementById('vc-list'))
-  document.body.classList.remove('screen-vc')
+  while (true) {
+    document.body.classList.add('screen-vc')
+    const {
+      channel,
+      participants
+    } = await selectVoiceChannel(client, document.getElementById('vc-list'))
+    document.body.classList.remove('screen-vc')
 
-  // Keep playing the game
-  document.body.classList.add('screen-game')
-  await game(channel, document.getElementById('game-root'))
-  document.body.classList.remove('screen-game')
-  document.body.classList.add('screen-loading')
+    document.body.classList.add('screen-game')
+    await game(channel, participants, document.getElementById('game-root'))
+    document.body.classList.remove('screen-game')
+  }
 }
 
 main()

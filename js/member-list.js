@@ -1,3 +1,5 @@
+import { Checkbox } from './components/checkbox.js'
+
 const { createElement: e, useEffect, useState } = React
 
 function getName (member) {
@@ -10,6 +12,14 @@ function getMembers (channel) {
 
 export function MemberList ({ channel, onStart, onBack }) {
   const [members, setMembers] = useState(() => getMembers(channel))
+  const [selected, setSelected] = useState(() => {
+    return getMembers(channel)
+      .filter(member => !member.user.bot)
+      .map(member => member.id)
+  })
+  // Ensure that all selected members are still in the VC
+  const selectedMembers = selected
+    .filter(id => members.find(member => member.id === id))
 
   useEffect(() => {
     const handleVoiceStateUpdate = (oldState, newState) => {
@@ -39,12 +49,25 @@ export function MemberList ({ channel, onStart, onBack }) {
     e(
       'ul',
       { className: 'member-list' },
-      members.map(member => e(
+      members.map((member, i) => e(
         'li',
         {
           className: `member-item ${member.user.bot ? 'member-bot' : ''}`,
           key: member.id
         },
+        e(Checkbox, {
+          checked: selected.includes(member.id),
+          onChange: checked => {
+            if (checked) {
+              if (!selected.includes(member.id)) {
+                setSelected([...selected, member.id])
+              }
+            } else {
+              setSelected(selected.filter(id => id !== member.id))
+            }
+          },
+          disabled: member.user.bot
+        }),
         e('img', {
           className: 'member-avatar',
           src: member.user.displayAvatarURL({
@@ -68,9 +91,9 @@ export function MemberList ({ channel, onStart, onBack }) {
     e(
       'button',
       {
-        onClick: onStart,
+        onClick: () => onStart(selectedMembers),
         className: 'start-btn',
-        disabled: !members.find(member => !member.user.bot)
+        disabled: selectedMembers.length === 0
       },
       'Start'
     )

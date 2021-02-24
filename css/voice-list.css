@@ -101,6 +101,12 @@
   align-items: center;
   margin: 5px 0;
 }
+.member-item .checkbox-wrapper {
+  margin-right: 10px;
+}
+.member-bot .checkbox-disabled {
+  opacity: 1;
+}
 .member-bot {
   opacity: 0.5;
 }
@@ -131,4 +137,7 @@
   color: #7289DA;
   background-color: white;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+.start-btn:disabled {
+  opacity: 0.5;
 }

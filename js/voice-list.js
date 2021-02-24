@@ -66,7 +66,14 @@ function VoiceChannelList ({ client, onChannel }) {
           }) : e('div', {
             className: 'vc-guild-icon vc-guild-no-icon'
           }),
-          e('span', { className: 'vc-guild-name-span' }, guild.name)
+          e(
+            'span',
+            {
+              className: 'vc-guild-name-span',
+              title: guild.name
+            },
+            guild.name
+          )
         ),
         guild.channels.map(channel => e(
           'button',
@@ -75,7 +82,14 @@ function VoiceChannelList ({ client, onChannel }) {
             onClick: () => onChannel(channel.id),
             key: channel.id
           },
-          e('span', { className: 'vc-voice-channel-name' }, channel.name),
+          e(
+            'span',
+            {
+              className: 'vc-voice-channel-name',
+              title: channel.name
+            },
+            channel.name
+          ),
           channel.members > 0 && e(
             'span',
             { className: 'vc-voice-channel-members' },
@@ -105,7 +119,7 @@ function VcOrMemberList ({ client, onStart }) {
       MemberList,
       {
         channel,
-        onStart: () => onStart(channel),
+        onStart: participants => onStart({ channel, participants }),
         onBack: () => setChannel(null)
       }
     )
@@ -141,8 +155,8 @@ export function selectVoiceChannel (client, root) {
       ),
       root
     )
-  }).then(channel => {
+  }).then(result => {
     ReactDOM.unmountComponentAtNode(root)
-    return channel
+    return result
   })
 }

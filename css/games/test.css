@@ -79,6 +79,7 @@
   right: 0;
   display: flex;
   justify-content: center;
+  flex-wrap: wrap-reverse;
   margin: 20px;
 }
 .game-player {
@@ -288,4 +289,23 @@
 .game-score-insignificant .game-avatar {
   width: 48px;
   height: 48px;
+}
+
+.game-back-btn {
+  position: fixed;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  color: white;
+  padding: 16px;
+  font-size: 0;
+  animation: game-fade-in .5s 3s forwards;
+}
+@keyframes game-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
